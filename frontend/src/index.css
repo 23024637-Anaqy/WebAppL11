@@ -100,3 +100,19 @@ div.error {
 input.error {
   border: 1px solid var(--error);
 }
+
+@font-face {
+  font-family: 'Cast Iron';
+  src: url('../public/castiron-condensed.otf');
+}
+
+body {
+  font-family: 'Cast Iron', sans-serif;
+  background-color: #282828;
+  color: #f2f2f2;
+}
+
+button {
+  background-color: #d84f1b; /* Fire accent */
+  color: #fff;
+}

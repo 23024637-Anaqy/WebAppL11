@@ -1,28 +1,44 @@
-const express = require('express')
-const {
-  createWorkout,
-  getWorkouts,
-  getWorkout,
-  deleteWorkout,
-  updateWorkout
-} = require('../controllers/workoutController')
+const express = require('express');
+const Workout = require('../models/workoutModel');
+const authenticate = require('../middleware/auth');
+const router = express.Router();
 
-const router = express.Router()
+router.get('/', authenticate, async (req, res) => {
+  const workouts = await Workout.find({ userId: req.userId });
+  res.json(workouts);
+});
 
-// GET all workouts
-router.get('/', getWorkouts)
+router.get('/:id', authenticate, async (req, res) => {
+  const workout = await Workout.findOne({ _id: req.params.id, userId: req.userId });
+  if (!workout) {
+    return res.status(404).json({ error: 'Workout not found' });
+  }
+  res.json(workout);
+});
 
-//GET a single workout
-router.get('/:id', getWorkout)
+router.post('/', authenticate, async (req, res) => {
+  const { title, reps, load } = req.body;
+  const workout = new Workout({ title, reps, load, userId: req.userId });
+  await workout.save();
+  res.status(201).json(workout);
+});
 
-// POST a new workout
-router.post('/', createWorkout)
+router.patch('/:id', authenticate, async (req, res) => {
+  const workout = await Workout.findOne({ _id: req.params.id, userId: req.userId });
+  if (!workout) {
+    return res.status(404).json({ error: 'Workout not found' });
+  }
+  workout.set(req.body);
+  await workout.save();
+  res.json(workout);
+});
 
-// DELETE a workout
-router.delete('/:id', deleteWorkout)
+router.delete('/:id', authenticate, async (req, res) => {
+  const workout = await Workout.findOneAndDelete({ _id: req.params.id, userId: req.userId });
+  if (!workout) {
+    return res.status(404).json({ error: 'Workout not found' });
+  }
+  res.json(workout);
+});
 
-// UPDATE a workout
-router.patch('/:id', updateWorkout)
-
-
-module.exports = router
+module.exports = router;
